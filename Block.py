@@ -17,7 +17,6 @@ class Block:
     messages: List[Message]
     current_block_hash: str = dc.field(init=False)
     time_added: datetime = dc.field(init=False)
-    nonce: str = dc.field(init=False)  # this var is the riddle \ תעלומה
 
     TOKEN_PRIZE = 3  # for the miner
 
@@ -31,15 +30,10 @@ class Block:
         computes the hash of the block using SHA-256 algorithm
         :return: the hash in hexadecimal
         """
-        self.make_nonce()  # create a nonce to the block
         block_hash = hashlib.sha256(self.compute_block_header()).hexdigest()
         self.current_block_hash = block_hash
         return block_hash
 
-    def make_nonce(self):
-        """Generate pseudorandom number."""
-        self.nonce = str(random.randint(1000, 10000))
-        return self.nonce
 
     # def validate_block(self, miner_proof: Callable[[bytes], bool]) -> bool:
 
