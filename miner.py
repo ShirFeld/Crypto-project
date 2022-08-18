@@ -3,6 +3,12 @@ from dataclasses import dataclass
 import rsa
 from typing import List
 
+from Message import Message
+import random
+
+from utilities import get_fields_str
+
+
 
 @dataclass
 class Miner:
@@ -20,12 +26,14 @@ class Miner:
     def update_reciver_balance(self,tokens):
         self.amount = self.amount + tokens
 
-    def find_hash_nonce(self, nonce:str, block_number, transaction, previous_hash):
+    def find_nonce_hash(self, nonce:str, block_number, transaction, previous_hash):
         counter = 1
         found = False
 
         while not found:
-            result = str(nonce) + str(block_number) + transaction + previous_hash + counter
+            result = get_fields_str(nonce, block_number, transaction, previous_hash, counter)
+            # result = str(nonce) + str(block_number) + str(transaction ) + str(previous_hash) + str(counter)
+
             hash = hashlib.sha256(result.encode()).hexdigest()
             print(hash) # optional - for testing
             if hash[:4] == nonce:
@@ -48,11 +56,15 @@ def get_miner_by_key(miners:List[Miner],public_key):
             return i
 
 if __name__ == '__main__':
+    (private_key, public_key) =  rsa.newkeys(128)
+    (private_key2, public_key2) = rsa.newkeys(128)
 
-    (private_key,public_key) =  rsa.newkeys(128)
-    print(private_key)
-    print(public_key)
-    miner1 = Miner(200,private_key, public_key)
+    miner1 = Miner(200, private_key, public_key)
+    miner2 = Miner(200, private_key2, public_key2)
+    random = random.randint(1, 10000)
 
-    # print(miner1)
-    # Miner.find_hash_nonce()
+    # str(random.randint())
+    message1 = Message(100, miner1.public_key, miner2.public_key, random)
+    print(message1)
+
+    miner1.find_nonce_hash('0000', 1000, message1.message_as_bytes(), message1.message_as_bytes())

@@ -12,7 +12,7 @@ class Message:
     sender_addr:rsa.PublicKey
     receiver_addr:rsa.PublicKey
     timestamp: datetime=dc.field(init=False)
-    message_signature:bytes=dc.field(init=False)
+    message_signature:bytes #dc.field(init=False)
 
     def __post_init__(self):
         self.timestamp = datetime.now()

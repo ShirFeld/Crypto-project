@@ -3,7 +3,6 @@ from queue import Queue
 from dataclasses import dataclass
 import dataclasses as dc
 from typing import List
-
 import miner
 from Block import Block
 from exceptions import TransactionException
@@ -12,11 +11,9 @@ from Message import Message
 import rsa
 from random import random
 
-
 # def make_nonce():
 #     nonce = str(random.randint(1000, 10000))  # a random 4 digit number to send to the miner
 #     return nonce
-
 
 @dataclass
 class CandidateBlock:
@@ -24,9 +21,18 @@ class CandidateBlock:
     final_transactions: List[Message]
     blockchain: List[Block] #block_chain
     temp_queue: Queue
-    prev_block_hash: str = blockchain[:-1].current_block_hash
-    index: int = blockchain[:-1].index + 1
+    prev_block_hash: str
+    index: int
     nonce:str = '0000' #this var is the riddle \ תעלומה
+
+    def get_prev_block_hash(self):
+        self.prev_block_hash = self.blockchain[:-1].current_block_hash
+        return self.prev_block_hash
+
+    def get_index(self):
+        self.index = self.blockchain[:-1].index + 1
+        return self.index
+
 
     def check_and_update_amount(tokens, sender_addr)->bool:
         sender = Miner.get_miner_by_key(Miner.users,sender_addr)
