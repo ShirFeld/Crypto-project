@@ -2,8 +2,8 @@ from dataclasses import dataclass
 import dataclasses as dc
 from datetime import datetime
 from typing import List
-import exceptions
-import rsa
+from exceptions import TransactionException
+from exceptions import BlockException
 from utilities import get_fields_str
 import hashlib
 from Message import Message
@@ -42,3 +42,14 @@ class Block:
         return self.nonce
 
     # def validate_block(self, miner_proof: Callable[[bytes], bool]) -> bool:
+
+    def validate_block(self):
+        for index, transaction in enumerate(self.messages):
+            try:
+                transaction.verify_message()
+                if index > 0 and transaction.message_signature != self.messages[index - 1].message_signature:
+                    raise BlockException("Block creation failed due linking problem in transaction number: "
+                                         + index)
+            except TransactionException as tte:
+                raise BlockException("Block creation failed due to validation problem in transaction number: "
+                                     + index + str(tte))
