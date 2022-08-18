@@ -7,8 +7,6 @@ from exceptions import BlockException
 from utilities import get_fields_str
 import hashlib
 from Message import Message
-from random import random
-
 
 @dataclass
 class Block:
@@ -22,7 +20,7 @@ class Block:
 
     def compute_block_header(self) -> bytes:
         block_str = \
-            get_fields_str(self.prev_block_hash, self.index, self.messages, self.time_added, self.nonce)
+            get_fields_str(self.prev_block_hash, self.index, self.messages, self.time_added)
         return block_str.encode()
 
     def compute_block_hash(self) -> str:
