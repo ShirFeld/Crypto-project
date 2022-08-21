@@ -3,17 +3,21 @@ from queue import Queue
 from dataclasses import dataclass
 import dataclasses as dc
 from typing import List
+
 import miner
 from Block import Block
 from exceptions import TransactionException
 from miner import Miner
 from Message import Message
 import rsa
+
 from random import random
+
 
 # def make_nonce():
 #     nonce = str(random.randint(1000, 10000))  # a random 4 digit number to send to the miner
 #     return nonce
+
 
 @dataclass
 class CandidateBlock:
@@ -33,7 +37,6 @@ class CandidateBlock:
         self.index = self.blockchain[:-1].index + 1
         return self.index
 
-
     def check_and_update_amount(tokens, sender_addr)->bool:
         sender = Miner.get_miner_by_key(Miner.users,sender_addr)
         return sender.update_sender_balance(tokens)
@@ -45,25 +48,14 @@ class CandidateBlock:
             return True
         return False
 
-
-    # def make_nonce(self):
-    #     """
-    #     this function Generate a pseudorandom number.
-    #
-    #     :return: # a random 4 digit number to send to the miner
-    #
-    #     Note: wemust send a 4 digit number to miner or change the miner function: find_hash_nonce()
-    #     """
-    #     self.nonce = str(random.randint(1000, 10000))  # a random 4 digit number to send to the miner
-    #     return self.nonce
-
-
     def create_new_block_to_list(self): # func 2
         """
         checks the user's resources so that there is no double spending problem.
         :return:
         list of all checked transactions.
         """
+        self.get_index() # initialize the index of the candidate block
+        self.get_prev_block_hash() # initialize the prev_block_hash of the candidate block
         block_nonce = self.nonce
 
         winner_miner: Miner = miner.get_miner_by_key(miner.users, self.minerAddress)  # will gives us the current miner from the list
@@ -71,7 +63,10 @@ class CandidateBlock:
 
         while not self.temp_queue.empty():
             transaction:Message = self.temp_queue.get()
-            winner_miner.find_nonce_hash(block_nonce, self.index,transaction, self.prev_block_hash)  # compute the nonce (we can save the result that return from: find_hash_nonce() )
+
+
+            winner_miner.find_nonce_hash(block_nonce, self.index,transaction.message_signature, self.prev_block_hash)  # compute the nonce (we can save the result that return from: find_hash_nonce() )
+
 
             # miner found the nonce hash and than can add the transaction to  the final block.
             # update accounts
@@ -80,13 +75,13 @@ class CandidateBlock:
             have_money = self.check_and_update_amount(transaction.amount,sender_miner)
 
             if have_money: # if sender has enough money, and we successfully updated sender amount -> prevent double spending
-                receiver_miner.update_reciver_balance(transaction.amount)  # update receiver amount
+                receiver_miner.update_receiver_balance(transaction.amount)  # update receiver amount
                 self.final_transactions.append(transaction)
 
         # create new block and add the final transactions
         new_block = Block(self.blockchain[-1].current_block_hash, self.blockchain[-1].index + 1, self.final_transactions)
         self.blockchain.append(new_block)  # add the block to the block chain
-        winner_miner.update_reciver_balance(Block.TOKEN_PRIZE)  # reward to miner
+        winner_miner.update_receiver_balance(Block.TOKEN_PRIZE)  # reward to miner
 
         return new_block
 
