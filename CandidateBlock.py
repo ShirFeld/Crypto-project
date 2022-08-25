@@ -13,12 +13,6 @@ import rsa
 
 from random import random
 
-
-# def make_nonce():
-#     nonce = str(random.randint(1000, 10000))  # a random 4 digit number to send to the miner
-#     return nonce
-
-
 @dataclass
 class CandidateBlock:
     minerAddress:rsa.PublicKey
@@ -59,14 +53,9 @@ class CandidateBlock:
         block_nonce = self.nonce
 
         winner_miner: Miner = miner.get_miner_by_key(miner.users, self.minerAddress)  # will gives us the current miner from the list
-
-
         while not self.temp_queue.empty():
             transaction:Message = self.temp_queue.get()
-
-
             winner_miner.find_nonce_hash(block_nonce, self.index,transaction.message_signature, self.prev_block_hash)  # compute the nonce (we can save the result that return from: find_hash_nonce() )
-
 
             # miner found the nonce hash and than can add the transaction to  the final block.
             # update accounts
@@ -78,10 +67,20 @@ class CandidateBlock:
                 receiver_miner.update_receiver_balance(transaction.amount)  # update receiver amount
                 self.final_transactions.append(transaction)
 
-        # create new block and add the final transactions
-        new_block = Block(self.blockchain[-1].current_block_hash, self.blockchain[-1].index + 1, self.final_transactions)
-        self.blockchain.append(new_block)  # add the block to the block chain
+        # create new block and at the right place
+        if len(self.blockchain) == 0:
+            new_block = Block(" ",0,self.final_transactions)
+            self.blockchain.append(new_block)
+        else:
+            new_block = Block(self.blockchain[-1].current_block_hash, self.blockchain[-1].index + 1, self.final_transactions)
+
+        # check if someone change the data
+        if new_block.prev_block_hash != self.blockchain[-1].current_block_hash:
+            raise Exception("Something wrong , the data is changed")
+        else:
+            self.blockchain.append(new_block)  # add the block to the block chain
         winner_miner.update_receiver_balance(Block.TOKEN_PRIZE)  # reward to miner
+
 
         return new_block
 
