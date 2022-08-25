@@ -70,7 +70,6 @@ class CandidateBlock:
         # create new block and at the right place
         if len(self.blockchain) == 0:
             new_block = Block(" ",0,self.final_transactions)
-            self.blockchain.append(new_block)
         else:
             new_block = Block(self.blockchain[-1].current_block_hash, self.blockchain[-1].index + 1, self.final_transactions)
 
@@ -100,4 +99,13 @@ class CandidateBlock:
             self.temp_queue._put(new_transaction)
             return True
         return False
+
+
+if __name__ == '__main__':
+    (private_key, public_key) = rsa.newkeys(128)
+    (private_key2, public_key2) = rsa.newkeys(128)
+    final = [Message]
+    List = [Block]
+    a_Queue = Queue()
+    block = CandidateBlock(public_key, final, List, a_Queue, "0000", 0)
 
