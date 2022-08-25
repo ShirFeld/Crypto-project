@@ -35,7 +35,7 @@ class Block:
 
     # def validate_block(self, miner_proof: Callable[[bytes], bool]) -> bool:
 
-    def validate_block(self):
+    def validate_block(self)->bool:
         for index, transaction in enumerate(self.messages):
             try:
                 transaction.verify_message()
@@ -45,3 +45,4 @@ class Block:
             except TransactionException as tte:
                 raise BlockException("Block creation failed due to validation problem in transaction number: "
                                      + index + str(tte))
+        return True

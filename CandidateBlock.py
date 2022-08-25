@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import dataclasses as dc
 from typing import List
 
+import exceptions
 import miner
 from Block import Block
 from exceptions import TransactionException
@@ -68,7 +69,7 @@ class CandidateBlock:
                 self.final_transactions.append(transaction)
 
         # create new block and at the right place
-        if len(self.blockchain) == 0:
+        if len(self.blockchain) == 0: # the len of blockchain is empty
             new_block = Block(" ",0,self.final_transactions)
 
         else:
@@ -79,8 +80,12 @@ class CandidateBlock:
         if new_block.prev_block_hash != self.blockchain[-1].current_block_hash:
             raise Exception("Something wrong , the data is changed")
         else:
+            # check again that block has not changed
+            verify = new_block.validate_block()
+            if not verify:
+                return False
             self.blockchain.append(new_block)  # add the block to the block chain
-        winner_miner.update_receiver_balance(Block.TOKEN_PRIZE)  # reward to miner
+            winner_miner.update_receiver_balance(Block.TOKEN_PRIZE)  # reward to miner
 
 
         return new_block
