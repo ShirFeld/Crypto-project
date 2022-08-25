@@ -70,8 +70,10 @@ class CandidateBlock:
         # create new block and at the right place
         if len(self.blockchain) == 0:
             new_block = Block(" ",0,self.final_transactions)
+
         else:
             new_block = Block(self.blockchain[-1].current_block_hash, self.blockchain[-1].index + 1, self.final_transactions)
+        new_block.current_block_hash = new_block.compute_block_hash()
 
         # check if someone change the data
         if new_block.prev_block_hash != self.blockchain[-1].current_block_hash:
